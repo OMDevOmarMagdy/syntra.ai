@@ -29,9 +29,14 @@ const transporter = nodemailer.createTransport({
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false,
-    ciphers: 'SSLv3'
+    rejectUnauthorized: false, // Fix for self-signed certs
   },
+  // Force IPv4 to avoid IPv6 timeouts in some container environments
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
+  debug: true, // Show debug output
+  logger: true // Log information to console
 });
 
 // Send password reset email
