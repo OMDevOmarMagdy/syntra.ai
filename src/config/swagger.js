@@ -20,9 +20,13 @@ const options = {
         url: 'http://localhost:3000/api/v1',
         description: 'Development Server',
       },
+      // {
+      //   url: 'https://api.syntra.ai/v1',
+      //   description: 'Production Server',
+      // },
       {
-        url: 'https://api.syntra.ai/v1',
-        description: 'Production Server',
+        url: 'https://syntraai-production.up.railway.app/api/v1',
+        description: 'Railway Production Server',
       },
     ],
     components: {
