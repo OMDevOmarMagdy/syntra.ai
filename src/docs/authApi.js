@@ -16,12 +16,17 @@
  *             email: john@example.com
  *             password: Password123
  *     responses:
- *       201:
- *         description: User registered successfully
+ *       200:
+ *         description: User registered successfully. Please verify your email.
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
  *       400:
  *         description: Validation error (missing fields, passwords don't match, invalid email)
  *         content:
