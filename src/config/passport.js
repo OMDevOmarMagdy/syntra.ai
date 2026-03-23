@@ -1,6 +1,7 @@
 // Initialize passport GitHub strategy
 
 const GitHubStrategy = require('passport-github2').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
 module.exports = function (passport) {
@@ -60,6 +61,64 @@ module.exports = function (passport) {
             email: email.toLowerCase(),
             githubId: profile.id,
             avatar: (profile._json && profile._json.avatar_url) || null,
+            emailVerified: email && !email.includes('noemail') ? true : false,
+          });
+
+          return done(null, newUser);
+        } catch (err) {
+          return done(err, null);
+        }
+      }
+    )
+  );
+
+  // Initialize passport Google strategy
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL:
+          process.env.GOOGLE_CALLBACK_URL ||
+          `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`,
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          // Get primary email
+          let email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+
+          if (!email) {
+            email = `${profile.id}@google.noemail`;
+          }
+
+          let user = null;
+
+          // Try find by googleId first
+          if (profile.id) {
+            user = await User.findOne({ googleId: profile.id });
+          }
+
+          // If not found, try by email
+          if (!user && email && !email.includes('noemail')) {
+            user = await User.findOne({ email: email.toLowerCase() });
+          }
+
+          if (user) {
+            if (!user.googleId) {
+              user.googleId = profile.id;
+            }
+            user.avatar = (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : user.avatar;
+            user.emailVerified = email && !email.includes('noemail') ? true : false;
+            await user.save();
+            return done(null, user);
+          }
+
+          // Create new user
+          const newUser = await User.create({
+            name: profile.displayName || 'Google User',
+            email: email.toLowerCase(),
+            googleId: profile.id,
+            avatar: (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : null,
             emailVerified: email && !email.includes('noemail') ? true : false,
           });
 

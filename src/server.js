@@ -9,9 +9,6 @@ const connectDB = require('./config/database');
 const passport = require('passport');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
-// Routes
-const authRoutes = require('./routes/authRoutes');
-
 // Initialize app
 const app = express();
 
@@ -23,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Initialize Passport (GitHub OAuth)
+// Initialize Passport (GitHub OAuth && Google OAuth)
 require('./config/passport')(passport);
 app.use(passport.initialize());
 
@@ -33,10 +30,13 @@ connectDB();
 // Swagger documentation
 app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
 
-// API Routes
+// Health check
 app.get('/api/v1/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Routes
+const authRoutes = require('./routes/authRoutes');
 
 app.use('/api/v1/auth', authRoutes);
 

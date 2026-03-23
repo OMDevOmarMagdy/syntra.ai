@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [
         function () {
-          return !this.githubId;
+          return !this.githubId && !this.googleId;
         },
         'Please provide a password',
       ],
@@ -58,6 +58,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       description: 'GitHub OAuth ID',
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      description: 'Google OAuth ID',
     },
     avatar: {
       type: String,

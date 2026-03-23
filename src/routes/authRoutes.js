@@ -52,6 +52,34 @@ router.get('/github/failure', (req, res) => {
 });
 // ======== GitHub OAuth: end ========
 
+// ======== Google OAuth: start ========
+// Request profile and email scope
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// ======== Google OAuth callback ========
+router.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/api/v1/auth/google/failure',
+  }),
+  (req, res) => {
+    // Successful authentication. Issue JWT and redirect or respond.
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRATION || '7d',
+    });
+
+    // Redirect to frontend with token (frontend should handle token in query)
+    const frontend = process.env.APP_URL || 'http://localhost:3000';
+    return res.redirect(`${frontend}/auth/success?token=${token}`);
+  }
+);
+
+router.get('/google/failure', (req, res) => {
+  res.status(401).json({ success: false, message: 'Google authentication failed' });
+});
+// ======== Google OAuth: end ========
+
 // Protected route to get current user info
 router.get('/me', protect, getMe);
 
