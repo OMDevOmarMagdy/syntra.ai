@@ -15,9 +15,10 @@
  *             name: John Doe
  *             email: john@example.com
  *             password: Password123
+ *             role: learner
  *     responses:
  *       200:
- *         description: User registered successfully. Please verify your email.
+ *         description: User registered successfully.
  *         content:
  *           application/json:
  *             schema:
@@ -25,6 +26,10 @@
  *               properties:
  *                 success:
  *                   type: boolean
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
  *                 message:
  *                   type: string
  *       400:
@@ -109,41 +114,56 @@
  *               properties:
  *                 success:
  *                   type: boolean
+ *                 data:
+ *                   type: object
  *                 message:
  *                   type: string
  *       500:
  *         description: Server error
  */
 
- /**
+//  /**
+//  * @swagger
+//  * /auth/verify-email:
+//  *   get:
+//  *     summary: Verify user email address
+//  *     tags:
+//  *       - Authentication
+//  *     parameters:
+//  *       - in: query
+//  *         name: token
+//  *         required: true
+//  *         schema:
+//  *           type: string
+//  *         description: Verification token sent to email
+//  *     responses:
+//  *       200:
+//  *         description: Email verified successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/AuthResponse'
+//  *       400:
+//  *         description: Invalid or expired token
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/ErrorResponse'
+//  *       500:
+//  *         description: Server error
+//  */
+
+/**
  * @swagger
- * /auth/verify-email:
+ * /auth/google:
  *   get:
- *     summary: Verify user email address
+ *     summary: Redirect to Google OAuth login
  *     tags:
  *       - Authentication
- *     parameters:
- *       - in: query
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: Verification token sent to email
+ *     description: Initiates Google OAuth flow. User will be redirected to Google login page.
  *     responses:
- *       200:
- *         description: Email verified successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AuthResponse'
- *       400:
- *         description: Invalid or expired token
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       500:
- *         description: Server error
+ *       302:
+ *         description: Redirect to Google OAuth authorization page
  */
 
 /**

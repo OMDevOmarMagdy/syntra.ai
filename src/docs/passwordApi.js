@@ -43,11 +43,18 @@
 
 /**
  * @swagger
- * /auth/reset-password:
+ * /auth/reset-password/{token}:
  *   post:
  *     summary: Reset password with valid token
  *     tags:
  *       - Password Management
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Reset token from email link
  *     requestBody:
  *       required: true
  *       content:
@@ -55,13 +62,9 @@
  *           schema:
  *             type: object
  *             required:
- *               - token
  *               - password
  *               - passwordConfirm
  *             properties:
- *               token:
- *                 type: string
- *                 description: Reset token from email link
  *               password:
  *                 type: string
  *                 minLength: 6
@@ -71,7 +74,6 @@
  *                 minLength: 6
  *                 description: Confirm new password (must match)
  *           example:
- *             token: abc123def456...
  *             password: NewPassword123
  *             passwordConfirm: NewPassword123
  *     responses:

@@ -2,7 +2,7 @@
 
 const GitHubStrategy = require('passport-github2').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/User');
+const prisma = require('./prisma');
 
 module.exports = function (passport) {
   passport.use(
@@ -36,32 +36,36 @@ module.exports = function (passport) {
 
           // Try find by githubId first
           if (profile.id) {
-            user = await User.findOne({ githubId: profile.id });
+            user = await prisma.user.findUnique({ where: { githubId: profile.id } });
           }
 
           // If not found, try by email (in case existing local account)
           if (!user && email && !email.includes('noemail')) {
-            user = await User.findOne({ email: email.toLowerCase() });
+            user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
           }
 
           if (user) {
             // Update user info if needed
-            if (!user.githubId) {
-              user.githubId = profile.id;
-            }
-            user.avatar = (profile._json && profile._json.avatar_url) || user.avatar;
-            user.emailVerified = email && !email.includes('noemail') ? true : false;
-            await user.save();
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                githubId: user.githubId || profile.id,
+                avatar: (profile._json && profile._json.avatar_url) || user.avatar,
+                emailVerified: email && !email.includes('noemail') ? true : user.emailVerified,
+              }
+            });
             return done(null, user);
           }
 
           // Create new user
-          const newUser = await User.create({
-            name: profile.displayName || profile.username || 'GitHub User',
-            email: email.toLowerCase(),
-            githubId: profile.id,
-            avatar: (profile._json && profile._json.avatar_url) || null,
-            emailVerified: email && !email.includes('noemail') ? true : false,
+          const newUser = await prisma.user.create({
+            data: {
+              name: profile.displayName || profile.username || 'GitHub User',
+              email: email.toLowerCase(),
+              githubId: profile.id,
+              avatar: (profile._json && profile._json.avatar_url) || null,
+              emailVerified: email && !email.includes('noemail') ? true : false,
+            }
           });
 
           return done(null, newUser);
@@ -95,31 +99,35 @@ module.exports = function (passport) {
 
           // Try find by googleId first
           if (profile.id) {
-            user = await User.findOne({ googleId: profile.id });
+            user = await prisma.user.findUnique({ where: { googleId: profile.id } });
           }
 
           // If not found, try by email
           if (!user && email && !email.includes('noemail')) {
-            user = await User.findOne({ email: email.toLowerCase() });
+            user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
           }
 
           if (user) {
-            if (!user.googleId) {
-              user.googleId = profile.id;
-            }
-            user.avatar = (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : user.avatar;
-            user.emailVerified = email && !email.includes('noemail') ? true : false;
-            await user.save();
+            user = await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                googleId: user.googleId || profile.id,
+                avatar: (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : user.avatar,
+                emailVerified: email && !email.includes('noemail') ? true : user.emailVerified,
+              }
+            });
             return done(null, user);
           }
 
           // Create new user
-          const newUser = await User.create({
-            name: profile.displayName || 'Google User',
-            email: email.toLowerCase(),
-            googleId: profile.id,
-            avatar: (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : null,
-            emailVerified: email && !email.includes('noemail') ? true : false,
+          const newUser = await prisma.user.create({
+            data: {
+              name: profile.displayName || 'Google User',
+              email: email.toLowerCase(),
+              googleId: profile.id,
+              avatar: (profile.photos && profile.photos.length > 0) ? profile.photos[0].value : null,
+              emailVerified: email && !email.includes('noemail') ? true : false,
+            }
           });
 
           return done(null, newUser);
@@ -134,7 +142,7 @@ module.exports = function (passport) {
   passport.serializeUser((user, done) => done(null, user.id));
   passport.deserializeUser(async (id, done) => {
     try {
-      const user = await User.findById(id);
+      const user = await prisma.user.findUnique({ where: { id } });
       done(null, user || null);
     } catch (err) {
       done(err, null);

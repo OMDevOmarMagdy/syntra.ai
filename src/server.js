@@ -5,7 +5,6 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-const connectDB = require('./config/database');
 const passport = require('passport');
 const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
@@ -23,9 +22,6 @@ app.use(cookieParser());
 // Initialize Passport (GitHub OAuth && Google OAuth)
 require('./config/passport')(passport);
 app.use(passport.initialize());
-
-// Database connection
-connectDB();
 
 // Swagger documentation
 app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));

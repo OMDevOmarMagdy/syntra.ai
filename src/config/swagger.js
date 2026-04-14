@@ -42,7 +42,7 @@ const options = {
         User: {
           type: 'object',
           properties: {
-            id: { type: 'string', description: 'User MongoDB ID' },
+            id: { type: 'string', description: 'User UUID' },
             name: { type: 'string', description: 'User full name' },
             email: { type: 'string', format: 'email', description: 'User email address' },
             avatar: { type: 'string', nullable: true, description: 'User avatar URL' },

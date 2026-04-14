@@ -18,6 +18,8 @@
   "description": "",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@prisma/client": "^5.22.0",
+    "@sendgrid/mail": "^8.1.6",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -27,9 +29,7 @@
     "helmet": "^8.1.0",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.20.1",
     "morgan": "^1.10.1",
-    "nodemailer": "^7.0.11",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
@@ -39,6 +39,7 @@
   "devDependencies": {
     "eslint": "^9.39.1",
     "nodemon": "^3.1.11",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "prisma": "^5.22.0"
   }
 }

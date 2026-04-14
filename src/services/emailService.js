@@ -1,5 +1,6 @@
 // Email service for sending password reset emails
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // HTML email template
 const htmlForm = (userName, resetUrl) => {
@@ -19,28 +20,10 @@ const htmlForm = (userName, resetUrl) => {
         `;
 };
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_PORT == 465, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false, // Fix for self-signed certs
-  },
-  // Force IPv4 to avoid IPv6 timeouts in some container environments
-  connectionTimeout: 10000, // 10 seconds
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-  debug: true, // Show debug output
-  logger: true // Log information to console
-});
+
 
 // Send password reset email
-exports.sendPasswordResetEmail = async (email, resetToken, userName, res) => {
+exports.sendPasswordResetEmail = async (email, resetToken, userName) => {
   try {
     const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${resetToken}`;
     console.log('Reset URL:', resetUrl); // For debugging
@@ -52,16 +35,21 @@ exports.sendPasswordResetEmail = async (email, resetToken, userName, res) => {
       html: htmlForm(userName, resetUrl),
     };
 
-    await transporter.sendMail(mailOptions);
-    return res.status(200).json({ success: true, message: 'Email sent successfully' });
+    console.log('Mail options: ', mailOptions);
+
+    await sgMail.send(mailOptions);
+    return true;
   } catch (err) {
     console.error('Email send error:', err);
-    return res.status(500).json({ error: 'Failed to send email' });
+    if (err.response) {
+      console.error('SendGrid error details:', JSON.stringify(err.response.body, null, 2));
+    }
+    throw new Error('Failed to send email');
   }
 };
 
 //  Verify email 
-exports.sendVerificationEmail = async (email, verificationToken, userName, res) => {
+exports.sendVerificationEmail = async (email, verificationToken, userName) => {
   try {
     const verificationUrl = `${process.env.APP_URL}/auth/verify-email?token=${verificationToken}`;
     console.log('Verification URL: ', verificationUrl); // For debugging
@@ -85,11 +73,15 @@ exports.sendVerificationEmail = async (email, verificationToken, userName, res) 
       `,
     };
 
-    await transporter.sendMail(mailOptions);
-    return res.status(200).json({ success: true, message: 'Email sent successfully' });
+    await sgMail.send(mailOptions);
+    return true;
   } catch (err) {
     console.error('Email send error:', err);
-      return res.status(500).json({ error: 'Failed to send email' });
+    
+    if (err.response) {
+      console.error('SendGrid error details:', JSON.stringify(err.response.body, null, 2));
+    }
+    throw new Error('Failed to send email');
   }
 };
 
@@ -109,10 +101,13 @@ exports.sendPasswordResetSuccessEmail = async (email, userName) => {
       `,
     };
 
-    await transporter.sendMail(mailOptions);
-    return res.status(200).json({ success: true, message: 'Confirmation email sent' });
+    await sgMail.send(mailOptions);
+    return true;
   } catch (err) { 
     console.error('Email send error:', err);
-    return res.status(500).json({ error: 'Failed to send email' });
+    if (err.response) {
+      console.error('SendGrid error details:', JSON.stringify(err.response.body, null, 2));
+    }
+    throw new Error('Failed to send email');
   }
 };
