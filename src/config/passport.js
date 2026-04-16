@@ -12,7 +12,7 @@ module.exports = function (passport) {
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
         callbackURL:
           process.env.GITHUB_CALLBACK_URL ||
-          `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/github/callback`,
+          `/api/v1/auth/github/callback`,
         userProfileURL: 'https://api.github.com/user',
         scope: ['user:email'], // Request email scope
       },
@@ -84,7 +84,7 @@ module.exports = function (passport) {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL:
           process.env.GOOGLE_CALLBACK_URL ||
-          `${process.env.APP_URL || 'http://localhost:3000'}/api/v1/auth/google/callback`,
+          `/api/v1/auth/google/callback`,
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
