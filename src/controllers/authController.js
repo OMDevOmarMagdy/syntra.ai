@@ -27,18 +27,21 @@ const sendTokenResponse = (user, statusCode, res, msg = '') => {
     options.secure = true;
   }
 
-  res.status(statusCode).cookie('token', token, options).json({
-    success: true,
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      avatar: user.avatar,
-      role: user.role,
-    },
-    message: msg
-  });
+  res
+    .status(statusCode)
+    .cookie('token', token, options)
+    .json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+      },
+      message: msg,
+    });
 };
 
 // Validate password strength
@@ -80,8 +83,11 @@ exports.signup = async (req, res) => {
     }
 
     // Generate a verification token
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenHash = crypto.createHash("sha256").update(verificationToken).digest('hex');
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationTokenHash = crypto
+      .createHash('sha256')
+      .update(verificationToken)
+      .digest('hex');
     const verificationTokenExpires = new Date(Date.now() + 3600000); // 1 hour
 
     // Hash password
@@ -96,7 +102,7 @@ exports.signup = async (req, res) => {
         email,
         password: hashedPassword,
         role,
-      }
+      },
     });
 
     const token = generateToken(user.id);
@@ -112,10 +118,11 @@ exports.signup = async (req, res) => {
 
     try {
       // await sendVerificationEmail(user.email, verificationToken, user.name, res);
-      res.status(200).json({ success: true,
+      res.status(200).json({
+        success: true,
         user,
         token,
-        message: 'User created successfully' 
+        message: 'User created successfully',
       });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -153,7 +160,7 @@ exports.verifyEmail = async (req, res, next) => {
         emailVerified: true,
         verificationToken: null,
         verificationTokenExpires: null,
-      }
+      },
     });
 
     sendTokenResponse(updatedUser, 200, res, 'Email verified successfully');
@@ -237,7 +244,7 @@ exports.forgotPassword = async (req, res) => {
 
     // Find user by email
     const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-    console.log("user: ",user);
+    console.log('user: ', user);
     if (!user) {
       // Don't reveal if email exists for security
       return res.status(200).json({
@@ -256,7 +263,7 @@ exports.forgotPassword = async (req, res) => {
       data: {
         resetPasswordToken: resetTokenHash,
         resetPasswordExpires: new Date(Date.now() + 3600000),
-      }
+      },
     });
 
     // Send reset email
@@ -269,7 +276,7 @@ exports.forgotPassword = async (req, res) => {
         data: {
           resetPasswordToken: null,
           resetPasswordExpires: null,
-        }
+        },
       });
       return res.status(500).json({ error: 'Failed to send reset email' });
     }
@@ -315,7 +322,7 @@ exports.resetPassword = async (req, res) => {
         resetPasswordExpires: { gt: new Date() },
       },
     });
-    console.log("user: ",user);
+    console.log('user: ', user);
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid or expired reset token' });
@@ -333,7 +340,7 @@ exports.resetPassword = async (req, res) => {
         password: hashedPassword,
         resetPasswordToken: null,
         resetPasswordExpires: null,
-      }
+      },
     });
 
     // Send success email
