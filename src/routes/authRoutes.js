@@ -71,7 +71,7 @@ router.get(
 
     // Redirect to frontend with token (frontend should handle token in query)
     const frontend = process.env.APP_URL || 'http://localhost:3000';
-    return res.redirect(`${frontend}/auth/success?token=${token}`);
+    return res.redirect(`${frontend}auth/success?token=${token}`);
   }
 );
 
