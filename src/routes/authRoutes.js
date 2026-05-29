@@ -64,14 +64,22 @@ router.get(
     failureRedirect: '/api/v1/auth/google/failure',
   }),
   (req, res) => {
-    // Successful authentication. Issue JWT and redirect or respond.
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+    // Successful authentication. Issue JWT and redirect.
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION || '7d',
     });
 
-    // Redirect to frontend with token (frontend should handle token in query)
+    // Set cookie with token
+    const cookieOptions = {
+      expires: new Date(Date.now() + (process.env.JWT_COOKIE_EXPIRE || 30) * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    };
+    res.cookie('token', token, cookieOptions);
+
+    // Redirect to frontend home page with token in URL
     const frontend = process.env.APP_URL || 'http://localhost:3000';
-    // return res.redirect(`${frontend}auth/success?token=${token}`);
     return res.redirect(frontend);
   }
 );

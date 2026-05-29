@@ -25,7 +25,8 @@ const options = {
       //   description: 'Production Server',
       // },
       {
-        url: 'https://syntraai-production.up.railway.app/api/v1',
+        // url: 'https://syntraai-production.up.railway.app/api/v1',
+        url: "appealing-curiosity-production.up.railway.app/api/v1",
         description: 'Railway Production Server',
       },
     ],
