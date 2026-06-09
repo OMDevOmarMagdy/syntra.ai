@@ -71,3 +71,214 @@
  *                   type: string
  *                   example: Upload failed
  */
+
+/**
+ * @swagger
+ * /user/skills:
+ *   post:
+ *     summary: Add a finished skill to the user profile
+ *     description: Appends a skill name to the user's skills list. If the skill already exists, it is not duplicated.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - skill
+ *             properties:
+ *               skill:
+ *                 type: string
+ *                 description: The name of the skill finished by the user
+ *                 example: React
+ *     responses:
+ *       200:
+ *         description: Skill added successfully or already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Skill added successfully
+ *                 skills:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["React"]
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Skill name is required and must be a non-empty string
+ *       401:
+ *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /user/profile:
+ *   get:
+ *     summary: Get user profile information with all properties
+ *     description: Retrieves the complete profile details of the authenticated user, including their completed skills.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /user/finish-track:
+ *   post:
+ *     summary: Mark the authenticated user's track as finished
+ *     description: Sets the `trackFinished` status of the logged-in user to true.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Track marked as finished successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Track marked as finished successfully
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+
+/**
+ * @swagger
+ * /user/finished-tracks:
+ *   get:
+ *     summary: Get all users who have finished their tracks
+ *     description: Retrieves a list of users where `trackFinished` is true. Restricted only to recruiters and admins.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Completed track users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 count:
+ *                   type: integer
+ *                   example: 1
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Not authorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       403:
+ *         description: Forbidden. User does not have recruiter or admin role.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */

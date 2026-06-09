@@ -47,10 +47,16 @@ const options = {
             name: { type: 'string', description: 'User full name' },
             email: { type: 'string', format: 'email', description: 'User email address' },
             avatar: { type: 'string', nullable: true, description: 'User avatar URL' },
-            role: { type: 'string', enum: ['user', 'admin'], description: 'User role' },
+            role: { type: 'string', enum: ['learner', 'team', 'employer', 'recruiter', 'admin'], description: 'User role' },
             githubId: { type: 'string', nullable: true, description: 'GitHub user ID' },
             isActive: { type: 'boolean', description: 'Account active status' },
             emailVerified: { type: 'boolean', description: 'Email verification status' },
+            skills: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'List of completed skills'
+            },
+            trackFinished: { type: 'boolean', description: 'Whether the user completed their track' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
           },

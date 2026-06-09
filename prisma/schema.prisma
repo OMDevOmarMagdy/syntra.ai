@@ -12,6 +12,7 @@ enum Role {
   learner
   team
   employer
+  recruiter
   admin
 }
 
@@ -32,6 +33,8 @@ model User {
   role                     Role      @default(learner)
   imageUrl                 String?
   imageId                  String?
+  skills                   String[]  @default([])
+  trackFinished            Boolean   @default(false)
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
 }
