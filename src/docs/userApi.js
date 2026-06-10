@@ -240,7 +240,7 @@
  * /user/finished-tracks:
  *   get:
  *     summary: Get all users who have finished their tracks
- *     description: Retrieves a list of users where `trackFinished` is true. Restricted only to recruiters and admins.
+ *     description: Retrieves a list of users where `trackFinished` is true. Restricted only to recruiters, teams, and admins.
  *     tags:
  *       - User
  *     security:
@@ -270,7 +270,7 @@
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  *       403:
- *         description: Forbidden. User does not have recruiter or admin role.
+ *         description: Forbidden. User does not have recruiter, team, or admin role.
  *         content:
  *           application/json:
  *             schema:

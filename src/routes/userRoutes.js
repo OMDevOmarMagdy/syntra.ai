@@ -14,6 +14,6 @@ router.get("/profile", protect, getUserProfile);
 
 // Track completion routes
 router.post("/finish-track", protect, finishTrack);
-router.get("/finished-tracks", protect, authorize("recruiter", "admin"), getFinishedUsers);
+router.get("/finished-tracks", protect, authorize("recruiter", "admin", "team"), getFinishedUsers);
 
 module.exports = router;
