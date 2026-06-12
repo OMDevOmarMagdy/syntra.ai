@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const {
-  sendPasswordResetEmail,
+  sendPasswordResetOtpEmail,
   sendPasswordResetSuccessEmail,
   sendVerificationEmail,
 } = require('../services/emailService');
@@ -233,7 +233,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// Forgot Password - Send reset email
+// Forgot Password - Send reset OTP
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -254,24 +254,24 @@ exports.forgotPassword = async (req, res) => {
       });
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    // Generate 6-digit OTP code
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
 
-    // Set reset token and expiry (1 hour)
+    // Set OTP hash and expiry (10 minutes)
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        resetPasswordToken: resetTokenHash,
-        resetPasswordExpires: new Date(Date.now() + 3600000),
+        resetPasswordToken: otpHash,
+        resetPasswordExpires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
       },
     });
 
-    // Send reset email
+    // Send reset OTP email
     try {
-      await sendPasswordResetEmail(user.email, resetToken, user.name);
+      await sendPasswordResetOtpEmail(user.email, otp, user.name);
     } catch (emailErr) {
-      // Clear reset token if email fails
+      // Clear OTP fields if email fails
       await prisma.user.update({
         where: { id: user.id },
         data: {
@@ -284,22 +284,25 @@ exports.forgotPassword = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password reset instructions sent to email',
+      message: 'Password reset OTP sent to email',
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Reset Password - Verify token and update password
+// Reset Password - Verify OTP and update password
 exports.resetPassword = async (req, res) => {
   try {
-    const { password, passwordConfirm } = req.body;
-    const { token } = req.params;
+    const { email, otp, password, passwordConfirm } = req.body;
+    console.log('email: ', email);
+    console.log('otp: ', otp);
+    console.log('password: ', password);
+    console.log('passwordConfirm: ', passwordConfirm);
 
     // Validate input
-    if (!token || !password || !passwordConfirm) {
-      return res.status(400).json({ error: 'Token, password, and confirm password are required' });
+    if (!email || !otp || !password || !passwordConfirm) {
+      return res.status(400).json({ error: 'Email, OTP, password, and confirm password are required' });
     }
 
     // Validate password strength
@@ -313,20 +316,21 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ error: 'Passwords do not match' });
     }
 
-    // Hash token to match stored hash
-    const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    // Hash OTP to match stored hash
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
 
-    // Find user with valid reset token
+    // Find user with matching email, OTP hash, and valid expiry
     const user = await prisma.user.findFirst({
       where: {
-        resetPasswordToken: resetTokenHash,
+        email: email.toLowerCase(),
+        resetPasswordToken: otpHash,
         resetPasswordExpires: { gt: new Date() },
       },
     });
-    console.log('user: ', user);
+    console.log('user:.... ', user);
 
     if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired reset token' });
+      return res.status(400).json({ error: 'Invalid or expired reset OTP' });
     }
 
     // Hash the new password
@@ -334,7 +338,7 @@ exports.resetPassword = async (req, res) => {
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Update password
+    // Update password and clear OTP fields
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {

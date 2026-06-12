@@ -2,7 +2,7 @@
  * @swagger
  * /auth/forgot-password:
  *   post:
- *     summary: Request password reset email
+ *     summary: Request password reset OTP
  *     tags:
  *       - Password Management
  *     requestBody:
@@ -21,7 +21,7 @@
  *             email: john@example.com
  *     responses:
  *       200:
- *         description: Reset email sent (or user not found - same response for security)
+ *         description: Reset OTP sent (or user not found - same response for security)
  *         content:
  *           application/json:
  *             schema:
@@ -31,6 +31,7 @@
  *                   type: boolean
  *                 message:
  *                   type: string
+ *                   example: Password reset OTP sent to email
  *       400:
  *         description: Email is required
  *         content:
@@ -43,18 +44,11 @@
 
 /**
  * @swagger
- * /auth/reset-password/{token}:
+ * /auth/reset-password:
  *   post:
- *     summary: Reset password with valid token
+ *     summary: Reset password with valid OTP
  *     tags:
  *       - Password Management
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: Reset token from email link
  *     requestBody:
  *       required: true
  *       content:
@@ -62,9 +56,19 @@
  *           schema:
  *             type: object
  *             required:
+ *               - email
+ *               - otp
  *               - password
  *               - passwordConfirm
  *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User email address
+ *               otp:
+ *                 type: string
+ *                 description: 6-digit numeric OTP sent via email
+ *                 example: "123456"
  *               password:
  *                 type: string
  *                 minLength: 6
@@ -74,6 +78,8 @@
  *                 minLength: 6
  *                 description: Confirm new password (must match)
  *           example:
+ *             email: john@example.com
+ *             otp: "123456"
  *             password: NewPassword123
  *             passwordConfirm: NewPassword123
  *     responses:
@@ -84,7 +90,7 @@
  *             schema:
  *               $ref: '#/components/schemas/AuthResponse'
  *       400:
- *         description: Invalid token, expired token, or validation error
+ *         description: Invalid OTP, expired OTP, or validation error
  *         content:
  *           application/json:
  *             schema:

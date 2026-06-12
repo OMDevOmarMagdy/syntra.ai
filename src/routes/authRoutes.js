@@ -22,7 +22,7 @@ router.get('/verify-email', verifyEmail); // Verify email before creating the us
 
 // Password management routes
 router.post('/forgot-password', forgotPassword);
-router.post('/reset-password/:token', resetPassword);
+router.post('/reset-password', resetPassword);
 
 // ======== GitHub OAuth: start ========
 // Request user:email scope to get user's email address

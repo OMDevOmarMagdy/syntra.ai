@@ -3,18 +3,15 @@ const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // HTML email template
-const htmlForm = (userName, resetUrl) => {
+const htmlOtpForm = (userName, otp) => {
   return `
-        <h2>Password Reset Request</h2>
+        <h2>Password Reset OTP</h2>
         <p>Hi ${userName},</p>
-        <p>You requested a password reset. Click the link below to reset your password:</p>
-        <p>
-          <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-            Reset Password
-          </a>
-        </p>
-        <p>Or copy this link: <a href="${resetUrl}">${resetUrl}</a></p>
-        <p>This link will expire in 1 hour.</p>
+        <p>You requested a password reset. Use the following One-Time Password (OTP) to reset your password:</p>
+        <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; text-align: center; margin: 20px 0;">
+          <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #007bff;">${otp}</span>
+        </div>
+        <p>This OTP will expire in 10 minutes.</p>
         <p>If you did not request a password reset, please ignore this email.</p>
         <p>Best regards,<br>Syntra.AI Team</p>
         `;
@@ -22,17 +19,16 @@ const htmlForm = (userName, resetUrl) => {
 
 
 
-// Send password reset email
-exports.sendPasswordResetEmail = async (email, resetToken, userName) => {
+// Send password reset OTP email
+exports.sendPasswordResetOtpEmail = async (email, otp, userName) => {
   try {
-    const resetUrl = `${process.env.APP_URL}/auth/reset-password?token=${resetToken}`;
-    console.log('Reset URL:', resetUrl); // For debugging
+    console.log('Reset OTP:', otp); // For debugging
 
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: email,
-      subject: 'Password Reset Request - Syntra.AI',
-      html: htmlForm(userName, resetUrl),
+      subject: 'Password Reset OTP - Syntra.AI',
+      html: htmlOtpForm(userName, otp),
     };
 
     console.log('Mail options: ', mailOptions);
