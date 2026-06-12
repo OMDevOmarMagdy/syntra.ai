@@ -71,7 +71,8 @@ exports.signup = async (req, res) => {
 
     if (!role) return res.status(400).json({ error: 'Role is required' });
 
-    const allowedRoles = ['learner', 'team', 'employer'];
+    const allowedRoles = ['learner', 'team', 'recruiter'];
+    console.log(role, 'role')
     if (!allowedRoles.includes(role)) {
       return res.status(400).json({ error: 'Invalid role specified' });
     }
