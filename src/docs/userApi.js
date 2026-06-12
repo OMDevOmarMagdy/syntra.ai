@@ -194,11 +194,24 @@
  * /user/finish-track:
  *   post:
  *     summary: Mark the authenticated user's track as finished
- *     description: Sets the `trackFinished` status of the logged-in user to true.
+ *     description: Sets the `trackFinished` status of the logged-in user to true and adds the track name to their finishedTracks list.
  *     tags:
  *       - User
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - track
+ *             properties:
+ *               track:
+ *                 type: string
+ *                 description: The name of the track finished by the user
+ *                 example: Frontend Development
  *     responses:
  *       200:
  *         description: Track marked as finished successfully
@@ -215,6 +228,16 @@
  *                   example: Track marked as finished successfully
  *                 user:
  *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Track name is required and must be a non-empty string
  *       401:
  *         description: Not authorized
  *         content:

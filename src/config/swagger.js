@@ -56,6 +56,11 @@ const options = {
               items: { type: 'string' },
               description: 'List of completed skills'
             },
+            finishedTracks: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'List of finished tracks'
+            },
             trackFinished: { type: 'boolean', description: 'Whether the user completed their track' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },

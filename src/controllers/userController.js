@@ -146,14 +146,44 @@ exports.getUserProfile = async (req, res) => {
 exports.finishTrack = async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        trackFinished: true
-      }
+    const { track } = req.body;
+
+    if (!track || typeof track !== 'string' || track.trim() === '') {
+      return res.status(400).json({ error: 'Track name is required and must be a non-empty string' });
+    }
+
+    const cleanedTrack = track.trim();
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
     });
 
-    const secureUser = { ...user };
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let updatedTracks = user.finishedTracks || [];
+    let updatedUser;
+
+    if (!updatedTracks.includes(cleanedTrack)) {
+      updatedTracks = [...updatedTracks, cleanedTrack];
+      updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          trackFinished: true,
+          finishedTracks: updatedTracks
+        }
+      });
+    } else {
+      updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+          trackFinished: true
+        }
+      });
+    }
+
+    const secureUser = { ...updatedUser };
     delete secureUser.password;
     delete secureUser.resetPasswordToken;
     delete secureUser.resetPasswordExpires;
