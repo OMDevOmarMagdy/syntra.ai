@@ -80,7 +80,7 @@ router.get(
 
     // Redirect to frontend home page with token in URL
     const frontend = process.env.APP_URL || 'http://localhost:3000';
-    return res.redirect(frontend);
+    return res.redirect(`${frontend}/auth/success?token=${token}`);
   }
 );
 
