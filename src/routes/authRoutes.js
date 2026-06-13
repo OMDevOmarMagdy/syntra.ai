@@ -37,7 +37,7 @@ router.get(
   }),
   (req, res) => {
     // Successful authentication. Issue JWT and redirect or respond.
-    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: req.user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION || '7d',
     });
 
